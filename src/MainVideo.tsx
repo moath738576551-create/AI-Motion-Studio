@@ -51,6 +51,35 @@ const Scene = ({
   );
 
   return (
+
+      {Array.from({ length: 18 }, (_, index) => {
+        const x = (index * 37 + 13) % 100;
+        const y = (index * 53 + 17) % 100;
+        const drift =
+          Math.sin((frame + index * 17) / 18) * 24;
+        const opacity =
+          0.2 +
+          (Math.sin((frame + index * 23) / 12) + 1) * 0.3;
+
+        return (
+          <div
+            key={index}
+            style={{
+              position: "absolute",
+              left: `${x}%`,
+              top: `${y}%`,
+              width: 5 + (index % 4) * 2,
+              height: 5 + (index % 4) * 2,
+              borderRadius: "50%",
+              background: "#FFD76A",
+              boxShadow: "0 0 14px #D4AF37",
+              opacity,
+              transform: `translateY(${drift}px)`,
+            }}
+          />
+        );
+      })}
+
     <AbsoluteFill
       style={{
         background:
