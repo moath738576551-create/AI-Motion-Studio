@@ -8,19 +8,23 @@ import {
 } from "remotion";
 
 import { DEFAULT_SCENES } from "./scenes";
+import { STUDIO_CONFIG } from "./config";
 
 const Scene = ({
   title,
   description,
+  duration,
 }: {
   title: string;
   description: string;
+  duration: number;
 }) => {
   const frame = useCurrentFrame();
+  const totalFrames = duration * STUDIO_CONFIG.fps;
 
   const opacity = interpolate(
     frame,
-    [0, 20, 120, 150],
+    [0, 20, totalFrames - 20, totalFrames],
     [0, 1, 1, 0],
     {
       extrapolateLeft: "clamp",
@@ -47,14 +51,6 @@ const Scene = ({
       <p style={{ fontSize: 38, color: "#FFFFFF" }}>
         {description}
       </p>
-      <div
-        style={{
-          width: 180,
-          height: 5,
-          background: "#D4AF37",
-          marginTop: 35,
-        }}
-      />
     </AbsoluteFill>
   );
 };
@@ -66,17 +62,18 @@ export const MainVideo = () => {
     <AbsoluteFill style={{ backgroundColor: "#000" }}>
       {DEFAULT_SCENES.map((scene) => {
         const from = startFrame;
-        startFrame += scene.duration * 30;
+        startFrame += scene.duration * STUDIO_CONFIG.fps;
 
         return (
           <Sequence
             key={scene.id}
             from={from}
-            durationInFrames={scene.duration * 30}
+            durationInFrames={scene.duration * STUDIO_CONFIG.fps}
           >
             <Scene
               title={scene.title}
               description={scene.description}
+              duration={scene.duration}
             />
           </Sequence>
         );
