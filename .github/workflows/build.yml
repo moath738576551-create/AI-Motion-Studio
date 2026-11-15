@@ -30,6 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: TypeScript check
+        run: npm run typecheck
+
       - name: Validate project settings and scenes
         env:
           PROJECT_JSON: ${{ inputs.project_json }}
