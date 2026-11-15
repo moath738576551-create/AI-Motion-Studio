@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "remotion studio src/remotion.ts",
-    "build": "remotion render src/remotion.ts MainVideo out/video.mp4"
+    "dev": "remotion studio src/remotion.tsx",
+    "build": "remotion render src/remotion.tsx MainVideo out/video.mp4"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.0",
