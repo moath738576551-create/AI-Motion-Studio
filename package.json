@@ -1,11 +1,11 @@
-
 {
   "name": "ai-motion-studio",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "dev": "remotion studio src/remotion.tsx",
-    "build": "remotion render src/remotion.tsx MainVideo out/video.mp4"
+    "prepare-project": "node scripts/prepare-project.mjs",
+    "build": "remotion render src/remotion.tsx MainVideo out/video.mp4 --props=out/project-props.json"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.0",

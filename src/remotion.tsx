@@ -1,24 +1,25 @@
-
 import { Composition, registerRoot } from "remotion";
 import { MainVideo } from "./MainVideo";
-import { STUDIO_CONFIG } from "./config";
-import { TOTAL_DURATION } from "./scenes";
+import { DEFAULT_PROJECT, getVideoDimensions } from "./project";
 
-const RemotionRoot = () => {
-  return (
-    <>
-      <Composition
-        id="MainVideo"
-        component={MainVideo}
-        durationInFrames={
-          TOTAL_DURATION * STUDIO_CONFIG.fps
-        }
-        fps={STUDIO_CONFIG.fps}
-        width={STUDIO_CONFIG.width}
-        height={STUDIO_CONFIG.height}
-      />
-    </>
-  );
-};
+const RemotionRoot: React.FC = () => (
+  <>
+    <Composition
+      id="MainVideo"
+      component={MainVideo}
+      defaultProps={DEFAULT_PROJECT}
+      durationInFrames={600}
+      fps={30}
+      width={1080}
+      height={1920}
+      calculateMetadata={({ props }) => {
+        const fps = props.settings.fps;
+        const durationInFrames = props.scenes.reduce((sum, scene) => sum + scene.duration, 0) * fps;
+        const dimensions = getVideoDimensions(props.settings.ratio, props.settings.resolution);
+        return { durationInFrames, fps, ...dimensions };
+      }}
+    />
+  </>
+);
 
 registerRoot(RemotionRoot);

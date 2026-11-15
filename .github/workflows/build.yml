@@ -1,36 +1,52 @@
-
 name: AI Motion Studio Build
 
 on:
   workflow_dispatch:
+    inputs:
+      project_json:
+        description: "Paste the complete project JSON exported from AI Motion Studio. Leave empty for the demo video."
+        required: false
+        type: string
+        default: ""
   push:
-    branches:
-      - main
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Get project
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
       - name: Install dependencies
         run: npm install
 
+      - name: Validate project settings and scenes
+        env:
+          PROJECT_JSON: ${{ inputs.project_json }}
+        run: npm run prepare-project
+
       - name: Install Chrome
         run: npx remotion browser ensure
 
-      - name: Render video
+      - name: Render customized MP4
         run: npm run build
 
-      - name: Upload video
+      - name: Upload MP4 and project settings
         uses: actions/upload-artifact@v4
         with:
           name: AI-MOTION-STUDIO-VIDEO
-          path: out/video.mp4
+          path: |
+            out/video.mp4
+            out/project-props.json
+          if-no-files-found: error
+          retention-days: 14
