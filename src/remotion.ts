@@ -5,6 +5,7 @@ import { STUDIO_CONFIG } from "./config";
 import { TOTAL_DURATION } from "./scenes";
 
 const RemotionRoot = () => {
+
   return (
     <Composition
       id="MainVideo"
