@@ -1,4 +1,4 @@
- 
+
 import React from "react";
 import {
   AbsoluteFill,
@@ -51,35 +51,6 @@ const Scene = ({
   );
 
   return (
-
-      {Array.from({ length: 18 }, (_, index) => {
-        const x = (index * 37 + 13) % 100;
-        const y = (index * 53 + 17) % 100;
-        const drift =
-          Math.sin((frame + index * 17) / 18) * 24;
-        const opacity =
-          0.2 +
-          (Math.sin((frame + index * 23) / 12) + 1) * 0.3;
-
-        return (
-          <div
-            key={index}
-            style={{
-              position: "absolute",
-              left: `${x}%`,
-              top: `${y}%`,
-              width: 5 + (index % 4) * 2,
-              height: 5 + (index % 4) * 2,
-              borderRadius: "50%",
-              background: "#FFD76A",
-              boxShadow: "0 0 14px #D4AF37",
-              opacity,
-              transform: `translateY(${drift}px)`,
-            }}
-          />
-        );
-      })}
-
     <AbsoluteFill
       style={{
         background:
@@ -91,6 +62,7 @@ const Scene = ({
         fontFamily: "Arial",
         opacity,
         padding: 70,
+        overflow: "hidden",
       }}
     >
       <AbsoluteFill
@@ -100,6 +72,38 @@ const Scene = ({
           boxShadow: `inset 0 0 80px rgba(212,175,55,${glow * 0.15})`,
         }}
       />
+
+      {Array.from({ length: 18 }, (_, index) => {
+        const x = (index * 37 + 13) % 100;
+        const y = (index * 53 + 17) % 100;
+
+        const drift =
+          Math.sin((frame + index * 17) / 18) * 24;
+
+        const particleOpacity =
+          0.2 +
+          (Math.sin((frame + index * 23) / 12) + 1) * 0.3;
+
+        const particleSize = 5 + (index % 4) * 2;
+
+        return (
+          <div
+            key={index}
+            style={{
+              position: "absolute",
+              left: `${x}%`,
+              top: `${y}%`,
+              width: particleSize,
+              height: particleSize,
+              borderRadius: "50%",
+              background: "#FFD76A",
+              boxShadow: "0 0 14px #D4AF37",
+              opacity: particleOpacity,
+              transform: `translateY(${drift}px)`,
+            }}
+          />
+        );
+      })}
 
       <div
         style={{
