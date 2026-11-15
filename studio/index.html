@@ -12,7 +12,7 @@
 <body>
 <header class="top"><div class="brand">✦ AI <b>MOTION</b> STUDIO</div><div class="status">● مساحة العمل جاهزة</div></header>
 <main class="wrap">
-<section class="hero"><div><div class="eyebrow">CREATIVE VIDEO WORKSPACE</div><h1>استوديو صناعة الفيديو</h1><div class="muted">أنشئ مشاهدك، حرّر النصوص العربية، وشاهد معاينة مشروعك قبل التصدير.</div></div><button class="btn gold" id="download">تصدير إعدادات المشروع ↓</button></section>
+<section class="hero"><div><div class="eyebrow">CREATIVE VIDEO WORKSPACE</div><h1>استوديو صناعة الفيديو</h1><div class="muted">أنشئ مشاهدك، حرّر النصوص العربية، وشاهد معاينة مشروعك قبل التصدير.</div></div><div class="actions"><button class="btn gold" id="download">تصدير إعدادات المشروع ↓</button><button class="btn" id="importBtn">استيراد مشروع ↑</button><input id="importFile" type="file" accept="application/json,.json" hidden></div></section>
 <div class="layout">
 <aside class="left">
 <div class="panel"><h3>قوالب البداية</h3>
@@ -41,7 +41,7 @@
 <div class="field"><label>مدة المشهد (بالثواني)</label><input id="seconds" type="number" min="1" max="60" value="5"></div>
 <div class="actions"><button class="btn" id="up">↑ تقديم</button><button class="btn" id="down">↓ تأخير</button><button class="btn" id="delete">حذف المشهد</button></div>
 </div>
-<div class="panel" style="margin-top:14px"><h3>حالة المشروع</h3><div class="muted">يتم حفظ تعديلاتك تلقائياً على هذا المتصفح.</div><div class="footnote">هذه نسخة أولية من واجهة الاستوديو: تحرير المشاهد والمعاينة وتصدير ملف الإعدادات تعمل محلياً. رندر الفيديو النهائي من داخل الواجهة وربط خدمات توليد الصور والفيديو لم يُفعّلا بعد.</div><div class="actions"><a class="btn wide" style="text-align:center;text-decoration:none" href="https://github.com/moath738576551-create/AI-Motion-Studio/actions" target="_blank" rel="noopener">فتح عمليات رندر الفيديو ↗</a></div></div>
+<div class="panel" style="margin-top:14px"><h3>حالة المشروع</h3><div class="muted">يتم حفظ تعديلاتك تلقائياً على هذا المتصفح.</div><div class="footnote">حرّر المشاهد ثم صدّر JSON. لإنتاج MP4 افتح سير العمل اليدوي، واختر Run workflow، والصق محتوى JSON في حقل project_json. بعد النجاح نزّل Artifact باسم AI-MOTION-STUDIO-VIDEO. توليد الصور والفيديو بالذكاء الاصطناعي يحتاج ربط خدمة خارجية ولم يُفعّل بعد.</div><div class="actions"><a class="btn wide" style="text-align:center;text-decoration:none" href="https://github.com/moath738576551-create/AI-Motion-Studio/actions/workflows/build.yml" target="_blank" rel="noopener">إنتاج فيديو MP4 ↗</a></div></div>
 </aside>
 </div>
 </main>
@@ -55,7 +55,7 @@ explainer:[{id:1,title:"هل تعلم؟",description:"فكرة بسيطة يمك
 let scenes=JSON.parse(localStorage.getItem("aims-scenes")||"null")||defaults.map(x=>({...x}));
 let selected=0;
 const $=id=>document.getElementById(id);
-function save(){localStorage.setItem("aims-scenes",JSON.stringify(scenes));}
+function save(){localStorage.setItem("aims-scenes",JSON.stringify(scenes));localStorage.setItem("aims-settings",JSON.stringify({ratio:$("ratio").value,fps:$("fps").value,resolution:$("resolution").value}));}
 function render(){
  if(!scenes.length){$("sceneList").innerHTML='<div class="empty">لا توجد مشاهد. أضف مشهداً للبدء.</div>';selected=-1;$("title").value="";$("description").value="";$("seconds").value=1;$("previewTitle").textContent="أضف مشهداً";$("previewDesc").textContent="سيظهر هنا محتوى المعاينة";$("previewLabel").textContent="لا يوجد مشهد";$("duration").textContent="المدة الإجمالية: 0 ثانية";return;}
  selected=Math.max(0,Math.min(selected,scenes.length-1));
@@ -76,5 +76,19 @@ $("up").onclick=()=>move(-1);$("down").onclick=()=>move(1);
 document.querySelectorAll(".template").forEach(el=>el.onclick=()=>{scenes=templates[el.dataset.template].map(x=>({...x,id:Date.now()+x.id}));selected=0;document.querySelectorAll(".template").forEach(x=>x.classList.remove("active"));el.classList.add("active");save();render();});
 ["ratio","fps","resolution"].forEach(id=>$(id).addEventListener("change",render));
 $("download").onclick=()=>{const data={project:"AI Motion Studio",version:1,settings:{ratio:$("ratio").value,fps:Number($("fps").value),resolution:Number($("resolution").value)},scenes};const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="ai-motion-studio-project.json";a.click();URL.revokeObjectURL(url);};
+$("importBtn").onclick=()=> $("importFile").click();
+$("importFile").addEventListener("change",async e=>{
+ const file=e.target.files&&e.target.files[0]; if(!file)return;
+ try{
+  const data=JSON.parse(await file.text());
+  if(!Array.isArray(data.scenes)||!data.scenes.length)throw new Error("ملف المشروع لا يحتوي على مشاهد.");
+  scenes=data.scenes.map((s,i)=>({id:String(s.id||Date.now()+i),title:String(s.title||"مشهد جديد"),description:String(s.description||""),duration:Math.max(1,Math.min(60,Number(s.duration)||5))}));
+  if(data.settings){if(["9:16","16:9","1:1"].includes(data.settings.ratio))$("ratio").value=data.settings.ratio;if([24,30,60].includes(Number(data.settings.fps)))$("fps").value=String(data.settings.fps);if([720,1080,2160].includes(Number(data.settings.resolution)))$("resolution").value=String(data.settings.resolution);}
+  selected=0;save();render();alert("تم استيراد المشروع بنجاح.");
+ }catch(err){alert("تعذر استيراد الملف: "+err.message);}
+ e.target.value="";
+});
+const savedSettings=JSON.parse(localStorage.getItem("aims-settings")||"null");
+if(savedSettings){if(["9:16","16:9","1:1"].includes(savedSettings.ratio))$("ratio").value=savedSettings.ratio;if([24,30,60].includes(Number(savedSettings.fps)))$("fps").value=String(savedSettings.fps);if([720,1080,2160].includes(Number(savedSettings.resolution)))$("resolution").value=String(savedSettings.resolution);}
 render();
 </script></body></html>
