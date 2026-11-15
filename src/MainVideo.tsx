@@ -1,4 +1,4 @@
-
+ 
 import React from "react";
 import {
   AbsoluteFill,
@@ -24,10 +24,28 @@ const Scene = ({
 
   const opacity = interpolate(
     frame,
-    [0, 20, totalFrames - 20, totalFrames],
+    [0, 25, totalFrames - 25, totalFrames],
     [0, 1, 1, 0],
     {
       extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    }
+  );
+
+  const titleY = interpolate(
+    frame,
+    [0, 35],
+    [100, 0],
+    {
+      extrapolateRight: "clamp",
+    }
+  );
+
+  const glow = interpolate(
+    frame,
+    [0, 30, 60],
+    [0.2, 1, 0.7],
+    {
       extrapolateRight: "clamp",
     }
   );
@@ -36,21 +54,56 @@ const Scene = ({
     <AbsoluteFill
       style={{
         background:
-          "linear-gradient(135deg, #080808, #242424, #000000)",
-        color: "#D4AF37",
+          "radial-gradient(ellipse at center, #30230d 0%, #100d08 45%, #000000 100%)",
         justifyContent: "center",
         alignItems: "center",
         textAlign: "center",
         direction: "rtl",
         fontFamily: "Arial",
         opacity,
-        padding: 80,
+        padding: 70,
       }}
     >
-      <h1 style={{ fontSize: 75 }}>{title}</h1>
-      <p style={{ fontSize: 38, color: "#FFFFFF" }}>
+      <AbsoluteFill
+        style={{
+          border: "2px solid rgba(212,175,55,0.35)",
+          margin: 35,
+          boxShadow: `inset 0 0 80px rgba(212,175,55,${glow * 0.15})`,
+        }}
+      />
+
+      <div
+        style={{
+          color: "#D4AF37",
+          fontSize: 76,
+          fontWeight: "bold",
+          transform: `translateY(${titleY}px)`,
+          textShadow: `0 0 ${30 * glow}px rgba(212,175,55,0.8)`,
+        }}
+      >
+        {title}
+      </div>
+
+      <div
+        style={{
+          color: "#FFFFFF",
+          fontSize: 38,
+          marginTop: 35,
+          opacity: glow,
+        }}
+      >
         {description}
-      </p>
+      </div>
+
+      <div
+        style={{
+          width: 180,
+          height: 3,
+          background: "#D4AF37",
+          marginTop: 45,
+          boxShadow: "0 0 20px #D4AF37",
+        }}
+      />
     </AbsoluteFill>
   );
 };
@@ -68,7 +121,9 @@ export const MainVideo = () => {
           <Sequence
             key={scene.id}
             from={from}
-            durationInFrames={scene.duration * STUDIO_CONFIG.fps}
+            durationInFrames={
+              scene.duration * STUDIO_CONFIG.fps
+            }
           >
             <Scene
               title={scene.title}
