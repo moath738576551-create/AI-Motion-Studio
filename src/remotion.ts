@@ -19,5 +19,4 @@ const RemotionRoot = () => {
     />
   );
 };
-
 registerRoot(RemotionRoot);
