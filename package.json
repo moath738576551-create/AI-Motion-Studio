@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "remotion studio src/remotion.tsx",
     "prepare-project": "node scripts/prepare-project.mjs",
-    "build": "remotion render src/remotion.tsx MainVideo out/video.mp4 --props=out/project-props.json"
+    "build": "remotion render src/remotion.tsx MainVideo out/video.mp4 --props=out/project-props.json",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.0",
