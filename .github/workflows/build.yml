@@ -35,7 +35,11 @@ jobs:
       - name: Validate project settings and scenes
         env:
           PROJECT_JSON: ${{ inputs.project_json }}
-        run: npm run prepare-project
+        run: |
+          if [ -z "$PROJECT_JSON" ] && [ -f projects/hailan-project.json ]; then
+            export PROJECT_JSON="$(cat projects/hailan-project.json)"
+          fi
+          npm run prepare-project
 
       - name: Install Chrome
         run: npx remotion browser ensure
