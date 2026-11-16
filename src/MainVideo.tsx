@@ -4,10 +4,11 @@ import { GoldParticles, AnimatedArabicText } from "./components";
 import type { StudioProjectProps, StudioScene } from "./project";
 
 const Bottle: React.FC<{ frame: number }> = ({ frame }) => {
-  const y = Math.sin(frame / 13) * 13;
-  const turn = Math.sin(frame / 28) * 3;
-  const scale = interpolate(frame, [0, 45, 150, 300, 450], [0.72, 1, 1.08, 1, 0.92], { extrapolateRight: "clamp" });
-  return <div style={{ transform: `translateY(${y}px) rotate(${turn}deg) scale(${scale})`, filter: "drop-shadow(0 35px 30px rgba(0,0,0,.55))" }}>
+  const y = interpolate(frame, [0, 45, 105, 150], [95, 0, -32, 0], { extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) }) + Math.sin(frame / 10) * 8;
+  const turn = interpolate(frame, [0, 75, 150], [-8, 5, -3], { extrapolateRight: "clamp" });
+  const scale = interpolate(frame, [0, 35, 100, 150], [0.62, 1.12, 1.28, 1.05], { extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
+  const drift = Math.sin(frame / 23) * 24;
+  return <div style={{ transform: `translate(${drift}px, ${y}px) rotate(${turn}deg) scale(${scale})`, filter: "drop-shadow(0 35px 30px rgba(0,0,0,.55))" }}>
     <svg width="440" height="790" viewBox="0 0 440 790">
       <defs>
         <linearGradient id="body" x1="0" x2="1"><stop stopColor="#f3e68b"/><stop offset=".14" stopColor="#10bfa5"/><stop offset=".82" stopColor="#00a98f"/><stop offset="1" stopColor="#e9d978"/></linearGradient>
@@ -43,20 +44,32 @@ const Scene: React.FC<StudioScene & { fps: number; index: number }> = ({ title, 
   const total = duration * fps;
   const fade = Math.min(18, Math.floor(total / 3));
   const opacity = interpolate(frame, [0, fade, total-fade, total], [0,1,1,0], { extrapolateLeft:"clamp", extrapolateRight:"clamp" });
-  const slide = interpolate(frame, [0, fade, total], [70,0,-45], { extrapolateRight:"clamp", easing:Easing.out(Easing.cubic) });
+  const intro = Math.min(24, Math.floor(total / 4));
+  const exit = Math.min(20, Math.floor(total / 4));
+  const zoom = interpolate(frame, [0, total], [0.92, 1.18], { extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
+  const directions = [
+    { from: "translate3d(0,-180px,0) scale(.65)", to: "translate3d(0,0,0) scale(1)" },
+    { from: "translate3d(220px,0,0) scale(.7)", to: "translate3d(0,0,0) scale(1)" },
+    { from: "translate3d(-220px,0,0) scale(.7)", to: "translate3d(0,0,0) scale(1)" }
+  ];
+  const entrance = directions[index % directions.length];
+  const textProgress = interpolate(frame, [0, intro, total-exit, total], [0, 1, 1, 0], { extrapolateRight: "clamp", easing: Easing.out(Easing.back(1.25)) });
+  const textX = index===1 ? interpolate(frame,[0,intro],[220,0],{extrapolateRight:"clamp"}) : index===2 ? interpolate(frame,[0,intro],[-220,0],{extrapolateRight:"clamp"}) : 0;
+  const textY = index===0 ? interpolate(frame,[0,intro],[-160,0],{extrapolateRight:"clamp"}) : interpolate(frame,[0,intro],[80,0],{extrapolateRight:"clamp"});
+  const titleScale = interpolate(frame,[0,intro,total],[.55,1.08,.94],{extrapolateRight:"clamp",easing:Easing.out(Easing.cubic)});
   return <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 43%, #17483e 0%, #06211e 48%, #020908 100%)", overflow:"hidden", opacity, color:"#fff", fontFamily:"Arial,sans-serif", direction:"rtl" }}>
-    <AbsoluteFill style={{ background:"linear-gradient(130deg, transparent 25%, rgba(109,255,226,.09) 48%, transparent 70%)", transform:`translateX(${(frame%90)*-9}px)` }}/>
-    <GoldParticles count={48}/>
-    <div style={{position:"absolute",top:"8%",left:"8%",right:"8%",height:2,background:"linear-gradient(90deg,transparent,#d6c36a,transparent)",boxShadow:"0 0 25px #8fffe2"}}/>
-    <div style={{position:"absolute",top:"9%",width:"100%",textAlign:"center",fontSize:23,letterSpacing:5,color:"#e9df9a"}}>TRICHUP  •  HERBAL CARE</div>
-    <div style={{position:"absolute",top:"15%",left:0,right:0,display:"flex",justifyContent:"center",transform:`translateY(${slide}px)`}}>
+    <AbsoluteFill style={{ background:"linear-gradient(130deg, transparent 25%, rgba(109,255,226,.13) 48%, transparent 70%)", transform:`translateX(${(frame%90)*-11}px) scale(1.15)` }}/>
+    <GoldParticles count={64}/>
+    <div style={{position:"absolute",top:"7%",left:"8%",right:"8%",height:2,background:"linear-gradient(90deg,transparent,#d6c36a,transparent)",boxShadow:"0 0 25px #8fffe2"}}/>
+    <div style={{position:"absolute",top:"8%",width:"100%",textAlign:"center",fontSize:22,letterSpacing:5,color:"#e9df9a",opacity:textProgress}}>TRICHUP  •  HERBAL CARE</div>
+    <div style={{position:"absolute",top:"13%",left:0,right:0,height:"62%",display:"flex",justifyContent:"center",alignItems:"center",transform:`scale(${zoom}) translateX(${Math.sin(frame/35)*22}px)`}}>
       <Bottle frame={frame + index*150}/>
     </div>
-    <div style={{position:"absolute",bottom:"8%",left:"5%",right:"5%",textAlign:"center",padding:22,background:"linear-gradient(180deg, transparent, rgba(0,0,0,.68))"}}>
-      <AnimatedArabicText text={title} fontSize={index===0?55:50} color="#f0df8a" durationInFrames={Math.min(30,total)}/>
-      <div style={{fontSize:27,lineHeight:1.6,marginTop:15,textShadow:"0 2px 15px #000"}}>{description}</div>
+    <div style={{position:"absolute",bottom:"7%",left:"4%",right:"4%",textAlign:"center",padding:"22px 14px",background:"linear-gradient(180deg, transparent, rgba(0,0,0,.78))",opacity:textProgress,transform:`translate3d(${textX}px,${textY}px,0) scale(${titleScale})`,transformOrigin:"center center"}}>
+      <div style={{fontSize:index===0?54:48,fontWeight:900,lineHeight:1.35,color:"#f0df8a",textShadow:"0 4px 28px rgba(245,212,119,.4)"}}>{title}</div>
+      <div style={{fontSize:25,lineHeight:1.55,marginTop:13,textShadow:"0 2px 15px #000"}}>{description}</div>
     </div>
-    <div style={{position:"absolute",bottom:22,left:"15%",right:"15%",height:3,background:"linear-gradient(90deg,transparent,#f2df83,transparent)"}}/>
+    <div style={{position:"absolute",bottom:20,left:"15%",right:"15%",height:3,background:"linear-gradient(90deg,transparent,#f2df83,transparent)",transform:`scaleX(${textProgress})`,transformOrigin:"center"}}/>
   </AbsoluteFill>;
 };
 
