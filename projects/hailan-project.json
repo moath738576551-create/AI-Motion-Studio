@@ -1,6 +1,6 @@
 {
-  "project": "AI Motion Studio - مياه هيلان",
-  "version": 1,
+  "project": "AI Motion Studio - إعلان شامبو TRICHUP",
+  "version": 2,
   "settings": {
     "ratio": "9:16",
     "fps": 30,
@@ -8,21 +8,21 @@
   },
   "scenes": [
     {
-      "id": "hailan-01",
-      "title": "هيلان... بداية الانتعاش",
-      "description": "لحظة نقاء، وانتعاش يلامس إحساسك.",
+      "id": "trichup-01",
+      "title": "TRICHUP... عناية تبدأ من الجذور",
+      "description": "شامبو تريشوب العشبي، عناية لشعرك في كل غسلة.",
       "duration": 5
     },
     {
-      "id": "hailan-02",
-      "title": "نقاء تشعر به",
-      "description": "مياه هيلان... رفيقك في كل لحظة.",
+      "id": "trichup-02",
+      "title": "قوة الأعشاب لشعرك",
+      "description": "تركيبة عشبية مع بلسم، لتنظيف الشعر والعناية به.",
       "duration": 5
     },
     {
-      "id": "hailan-03",
-      "title": "هيلان... انتعاش الحياة",
-      "description": "اختر هيلان، واجعل الانتعاش أقرب إليك.",
+      "id": "trichup-03",
+      "title": "اختاري عناية تليق بشعرك",
+      "description": "TRICHUP Herbal Shampoo | 400 ml",
       "duration": 5
     }
   ]
