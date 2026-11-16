@@ -39,11 +39,11 @@ const Bottle: React.FC<{ frame: number }> = ({ frame }) => {
   </div>;
 };
 
-const Scene: React.FC<StudioScene & { fps: number; index: number }> = ({ title, description, duration, fps, index }) => {
+const Scene: React.FC<StudioScene & { fps: number; index: number; overlap: number; last: boolean }> = ({ title, description, duration, fps, index, overlap, last }) => {
   const frame = useCurrentFrame();
   const total = duration * fps;
-  const fade = Math.min(18, Math.floor(total / 3));
-  const opacity = interpolate(frame, [0, fade, total-fade, total], [0,1,1,0], { extrapolateLeft:"clamp", extrapolateRight:"clamp" });
+  const fade = Math.min(overlap, 18, Math.floor(total / 3));
+  const opacity = interpolate(frame, [0, fade, total-fade, total], [0,1,1,last ? 1 : 0], { extrapolateLeft:"clamp", extrapolateRight:"clamp" });
   const intro = Math.min(24, Math.floor(total / 4));
   const exit = Math.min(20, Math.floor(total / 4));
   const zoom = interpolate(frame, [0, total], [0.92, 1.18], { extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
@@ -53,19 +53,22 @@ const Scene: React.FC<StudioScene & { fps: number; index: number }> = ({ title, 
     { from: "translate3d(-220px,0,0) scale(.7)", to: "translate3d(0,0,0) scale(1)" }
   ];
   const entrance = directions[index % directions.length];
+  const sweep = Math.sin(frame / 27) * 34;
+  const imageZoom = interpolate(frame, [0, total], [0.88, 1.22], { extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
   const textProgress = interpolate(frame, [0, intro, total-exit, total], [0, 1, 1, 0], { extrapolateRight: "clamp", easing: Easing.out(Easing.back(1.25)) });
   const textX = index===1 ? interpolate(frame,[0,intro],[220,0],{extrapolateRight:"clamp"}) : index===2 ? interpolate(frame,[0,intro],[-220,0],{extrapolateRight:"clamp"}) : 0;
   const textY = index===0 ? interpolate(frame,[0,intro],[-160,0],{extrapolateRight:"clamp"}) : interpolate(frame,[0,intro],[80,0],{extrapolateRight:"clamp"});
   const titleScale = interpolate(frame,[0,intro,total],[.55,1.08,.94],{extrapolateRight:"clamp",easing:Easing.out(Easing.cubic)});
   return <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 43%, #17483e 0%, #06211e 48%, #020908 100%)", overflow:"hidden", opacity, color:"#fff", fontFamily:"Arial,sans-serif", direction:"rtl" }}>
-    <AbsoluteFill style={{ background:"linear-gradient(130deg, transparent 25%, rgba(109,255,226,.13) 48%, transparent 70%)", transform:`translateX(${(frame%90)*-11}px) scale(1.15)` }}/>
+    <AbsoluteFill style={{ background:"linear-gradient(130deg, transparent 20%, rgba(109,255,226,.18) 48%, transparent 72%)", transform:`translateX(${(frame%90)*-11}px) scale(1.15)` }}/>
+    <div style={{position:"absolute",inset:"10% -22%",background:"radial-gradient(ellipse,rgba(219,197,117,.12),transparent 62%)",transform:`translateX(${sweep}px)`}}/>
     <GoldParticles count={64}/>
     <div style={{position:"absolute",top:"7%",left:"8%",right:"8%",height:2,background:"linear-gradient(90deg,transparent,#d6c36a,transparent)",boxShadow:"0 0 25px #8fffe2"}}/>
     <div style={{position:"absolute",top:"8%",width:"100%",textAlign:"center",fontSize:22,letterSpacing:5,color:"#e9df9a",opacity:textProgress}}>TRICHUP  •  HERBAL CARE</div>
-    <div style={{position:"absolute",top:"13%",left:0,right:0,height:"62%",display:"flex",justifyContent:"center",alignItems:"center",transform:`scale(${zoom}) translateX(${Math.sin(frame/35)*22}px)`}}>
+    <div style={{position:"absolute",top:"13%",left:0,right:0,height:"62%",display:"flex",justifyContent:"center",alignItems:"center",transform:`scale(${zoom * imageZoom}) translateX(${Math.sin(frame/35)*34}px)`}}>
       <Bottle frame={frame + index*150}/>
     </div>
-    <div style={{position:"absolute",bottom:"7%",left:"4%",right:"4%",textAlign:"center",padding:"22px 14px",background:"linear-gradient(180deg, transparent, rgba(0,0,0,.78))",opacity:textProgress,transform:`translate3d(${textX}px,${textY}px,0) scale(${titleScale})`,transformOrigin:"center center"}}>
+    <div style={{position:"absolute",bottom:"7%",left:"4%",right:"4%",textAlign:"center",padding:"26px 16px",borderTop:"1px solid rgba(240,223,138,.55)",borderBottom:"1px solid rgba(240,223,138,.35)",background:"linear-gradient(180deg, rgba(2,9,8,.05), rgba(0,0,0,.76))",opacity:textProgress,transform:`translate3d(${textX}px,${textY}px,0) scale(${titleScale})`,transformOrigin:"center center"}}>
       <div style={{fontSize:index===0?54:48,fontWeight:900,lineHeight:1.35,color:"#f0df8a",textShadow:"0 4px 28px rgba(245,212,119,.4)"}}>{title}</div>
       <div style={{fontSize:25,lineHeight:1.55,marginTop:13,textShadow:"0 2px 15px #000"}}>{description}</div>
     </div>
@@ -74,8 +77,16 @@ const Scene: React.FC<StudioScene & { fps: number; index: number }> = ({ title, 
 };
 
 export const MainVideo: React.FC<StudioProjectProps> = ({ scenes, settings }) => {
+  const overlap = Math.round(settings.fps * 0.55);
   let start = 0;
   return <AbsoluteFill style={{background:"#020908"}}>
-    {scenes.map((scene,index)=>{const from=start;const durationInFrames=scene.duration*settings.fps;start+=durationInFrames;return <Sequence key={scene.id} from={from} durationInFrames={durationInFrames}><Scene {...scene} fps={settings.fps} index={index}/></Sequence>;})}
+    {scenes.map((scene,index)=>{
+      const from = start;
+      const durationInFrames = scene.duration * settings.fps + (index < scenes.length - 1 ? overlap : 0);
+      start += scene.duration * settings.fps;
+      return <Sequence key={scene.id} from={from} durationInFrames={durationInFrames}>
+        <Scene {...scene} fps={settings.fps} index={index} overlap={overlap} last={index === scenes.length - 1}/>
+      </Sequence>;
+    })}
   </AbsoluteFill>;
 };
