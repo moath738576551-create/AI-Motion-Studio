@@ -1,0 +1,29 @@
+{
+  "project": "AI Motion Studio - مياه هيلان",
+  "version": 1,
+  "settings": {
+    "ratio": "9:16",
+    "fps": 30,
+    "resolution": 1080
+  },
+  "scenes": [
+    {
+      "id": "hailan-01",
+      "title": "هيلان... بداية الانتعاش",
+      "description": "لحظة نقاء، وانتعاش يلامس إحساسك.",
+      "duration": 5
+    },
+    {
+      "id": "hailan-02",
+      "title": "نقاء تشعر به",
+      "description": "مياه هيلان... رفيقك في كل لحظة.",
+      "duration": 5
+    },
+    {
+      "id": "hailan-03",
+      "title": "هيلان... انتعاش الحياة",
+      "description": "اختر هيلان، واجعل الانتعاش أقرب إليك.",
+      "duration": 5
+    }
+  ]
+}
