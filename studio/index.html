@@ -74,7 +74,7 @@ $("delete").onclick=()=>{if(selected<0)return;scenes.splice(selected,1);selected
 function move(delta){if(selected<0)return;const n=selected+delta;if(n<0||n>=scenes.length)return;[scenes[selected],scenes[n]]=[scenes[n],scenes[selected]];selected=n;save();render();}
 $("up").onclick=()=>move(-1);$("down").onclick=()=>move(1);
 document.querySelectorAll(".template").forEach(el=>el.onclick=()=>{scenes=templates[el.dataset.template].map(x=>({...x,id:Date.now()+x.id}));selected=0;document.querySelectorAll(".template").forEach(x=>x.classList.remove("active"));el.classList.add("active");save();render();});
-["ratio","fps","resolution"].forEach(id=>$(id).addEventListener("change",render));
+["ratio","fps","resolution"].forEach(id=>$(id).addEventListener("change",()=>{save();render();}));
 $("download").onclick=()=>{const data={project:"AI Motion Studio",version:1,settings:{ratio:$("ratio").value,fps:Number($("fps").value),resolution:Number($("resolution").value)},scenes};const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="ai-motion-studio-project.json";a.click();URL.revokeObjectURL(url);};
 $("importBtn").onclick=()=> $("importFile").click();
 $("importFile").addEventListener("change",async e=>{
